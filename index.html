@@ -410,6 +410,7 @@
     el.style.fontWeight      = Math.random() > 0.5 ? '300' : '400'
     el.style.animationDuration = `${duration}ms`
     el.style.animationDelay    = `${delay}ms`
+    el.style.opacity           = '0'
 
     el.innerHTML = `${text}<button class="deed-report" onclick="reportDeed(this)">⚑ report</button>`
 
