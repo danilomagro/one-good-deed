@@ -1,590 +1,537 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One Good Deed</title>
-    <meta name="description"
-        content="An anonymous, ephemeral stream of kindness. Share your good deeds — no accounts, no data, no limits.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400&display=swap"
-        rel="stylesheet">
-    <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One Good Deed</title>
+  <meta name="description" content="An anonymous, ephemeral stream of kindness. Share your good deeds — no accounts, no data, no limits.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        :root {
-            --bg: #03030c;
-            --msg: #f0ebe0;
-            --msg-dim: rgba(240, 235, 224, 0.55);
-            --accent: #c9a97e;
-            --accent-glow: rgba(201, 169, 126, 0.25);
-            --ui: rgba(240, 235, 224, 0.75);
-            --ui-dim: rgba(240, 235, 224, 0.35);
-            --input-bg: rgba(240, 235, 224, 0.05);
-            --input-border: rgba(240, 235, 224, 0.15);
-            --input-border-focus: rgba(201, 169, 126, 0.5);
-        }
+    :root {
+      --bg: #03030c;
+      --msg: #f0ebe0;
+      --msg-dim: rgba(240,235,224,0.55);
+      --accent: #c9a97e;
+      --accent-glow: rgba(201,169,126,0.25);
+      --ui: rgba(240,235,224,0.75);
+      --ui-dim: rgba(240,235,224,0.35);
+      --input-bg: rgba(240,235,224,0.05);
+      --input-border: rgba(240,235,224,0.15);
+      --input-border-focus: rgba(201,169,126,0.5);
+    }
 
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: var(--bg);
-            font-family: 'DM Sans', sans-serif;
-            color: var(--ui);
-            cursor: default;
-        }
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ui);
+      cursor: default;
+    }
 
-        #stars {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-        }
+    #stars {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-        #sky {
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-        }
+    #sky {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
 
-        .deed {
-            position: absolute;
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            color: var(--msg);
-            line-height: 1.4;
-            max-width: min(480px, 80vw);
-            text-align: center;
-            text-shadow:
-                0 0 40px var(--accent-glow),
-                0 0 80px rgba(201, 169, 126, 0.1);
-            animation: deed-float linear forwards;
-            pointer-events: auto;
-            cursor: default;
-        }
+    .deed {
+      position: absolute;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      color: var(--msg);
+      line-height: 1.4;
+      max-width: min(480px, 80vw);
+      text-align: center;
+      text-shadow:
+        0 0 40px var(--accent-glow),
+        0 0 80px rgba(201,169,126,0.1);
+      animation: deed-float linear forwards;
+      pointer-events: auto;
+      cursor: default;
+    }
 
-        .deed:hover .deed-report {
-            opacity: 1;
-        }
+    .deed:hover .deed-report { opacity: 1; }
 
-        .deed-report {
-            display: block;
-            margin-top: 6px;
-            font-family: 'DM Sans', sans-serif;
-            font-style: normal;
-            font-size: 10px;
-            font-weight: 300;
-            letter-spacing: 0.08em;
-            opacity: 0;
-            transition: opacity 0.3s;
-            cursor: pointer;
-            background: none;
-            border: none;
-            color: var(--ui-dim);
-        }
+    .deed-report {
+      display: block;
+      margin-top: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-style: normal;
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      opacity: 0;
+      transition: opacity 0.3s;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: var(--ui-dim);
+    }
 
-        .deed-report:hover {
-            color: var(--ui);
-        }
+    .deed-report:hover { color: var(--ui); }
 
-        @keyframes deed-float {
-            0% {
-                opacity: 0;
-                transform: translateY(18px);
-            }
+    @keyframes deed-float {
+      0%   { opacity: 0; transform: translateY(55px); }
+      10%  { opacity: 1; transform: translateY(0); }
+      80%  { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-55px); }
+    }
 
-            8% {
-                opacity: 1;
-            }
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 28px 36px;
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      pointer-events: none;
+    }
 
-            75% {
-                opacity: 1;
-            }
+    .site-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ui-dim);
+    }
 
-            100% {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-        }
+    .site-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.6;
+      flex-shrink: 0;
+      margin-bottom: 2px;
+    }
 
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 10;
-            padding: 28px 36px;
-            display: flex;
-            align-items: baseline;
-            gap: 14px;
-            pointer-events: none;
-        }
+    .live-count {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      color: var(--ui-dim);
+    }
 
-        .site-title {
-            font-family: 'DM Sans', sans-serif;
-            font-size: 11px;
-            font-weight: 300;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: var(--ui-dim);
-        }
+    #input-area {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 24px 24px 36px;
+      background: linear-gradient(to top, rgba(3,3,12,0.95) 60%, transparent);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
 
-        .site-dot {
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: var(--accent);
-            opacity: 0.6;
-            flex-shrink: 0;
-            margin-bottom: 2px;
-        }
+    .input-hint {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.14em;
+      color: var(--ui-dim);
+      text-transform: uppercase;
+    }
 
-        .live-count {
-            font-size: 11px;
-            font-weight: 300;
-            letter-spacing: 0.1em;
-            color: var(--ui-dim);
-        }
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 560px;
+    }
 
-        #input-area {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 10;
-            padding: 24px 24px 36px;
-            background: linear-gradient(to top, rgba(3, 3, 12, 0.95) 60%, transparent);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
+    #deed-input {
+      flex: 1;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 2px;
+      padding: 13px 18px;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 18px;
+      color: var(--msg);
+      outline: none;
+      transition: border-color 0.3s, background 0.3s;
+      caret-color: var(--accent);
+    }
 
-        .input-hint {
-            font-size: 11px;
-            font-weight: 300;
-            letter-spacing: 0.14em;
-            color: var(--ui-dim);
-            text-transform: uppercase;
-        }
+    #deed-input::placeholder { color: var(--ui-dim); font-style: italic; }
+    #deed-input:focus {
+      border-color: var(--input-border-focus);
+      background: rgba(240,235,224,0.07);
+    }
 
-        .input-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-            max-width: 560px;
-        }
+    #submit-btn {
+      background: none;
+      border: 1px solid var(--input-border);
+      border-radius: 2px;
+      padding: 13px 20px;
+      color: var(--accent);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.3s, background 0.3s, color 0.3s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
 
-        #deed-input {
-            flex: 1;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 2px;
-            padding: 13px 18px;
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-size: 18px;
-            color: var(--msg);
-            outline: none;
-            transition: border-color 0.3s, background 0.3s;
-            caret-color: var(--accent);
-        }
+    #submit-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+      color: var(--msg);
+    }
 
-        #deed-input::placeholder {
-            color: var(--ui-dim);
-            font-style: italic;
-        }
+    #submit-btn:disabled { opacity: 0.4; cursor: default; }
 
-        #deed-input:focus {
-            border-color: var(--input-border-focus);
-            background: rgba(240, 235, 224, 0.07);
-        }
+    .input-meta {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 560px;
+    }
 
-        #submit-btn {
-            background: none;
-            border: 1px solid var(--input-border);
-            border-radius: 2px;
-            padding: 13px 20px;
-            color: var(--accent);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 11px;
-            font-weight: 400;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: border-color 0.3s, background 0.3s, color 0.3s;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
+    #char-count {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--ui-dim);
+      letter-spacing: 0.06em;
+      transition: color 0.2s;
+    }
 
-        #submit-btn:hover:not(:disabled) {
-            border-color: var(--accent);
-            background: var(--accent-glow);
-            color: var(--msg);
-        }
+    #char-count.warn { color: var(--accent); }
 
-        #submit-btn:disabled {
-            opacity: 0.4;
-            cursor: default;
-        }
+    #status-msg {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      color: var(--ui-dim);
+      font-style: italic;
+      min-height: 16px;
+      transition: opacity 0.4s;
+    }
 
-        .input-meta {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 560px;
-        }
+    #status-msg.visible { opacity: 1; }
+    #status-msg.hidden  { opacity: 0; }
 
-        #char-count {
-            font-size: 11px;
-            font-weight: 300;
-            color: var(--ui-dim);
-            letter-spacing: 0.06em;
-            transition: color 0.2s;
-        }
+    #toast {
+      position: fixed;
+      bottom: 140px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      background: rgba(30,30,40,0.9);
+      border: 1px solid var(--input-border);
+      border-radius: 2px;
+      padding: 10px 20px;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: var(--ui-dim);
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+    }
 
-        #char-count.warn {
-            color: var(--accent);
-        }
-
-        #status-msg {
-            font-size: 11px;
-            font-weight: 300;
-            letter-spacing: 0.1em;
-            color: var(--ui-dim);
-            font-style: italic;
-            min-height: 16px;
-            transition: opacity 0.4s;
-        }
-
-        #status-msg.visible {
-            opacity: 1;
-        }
-
-        #status-msg.hidden {
-            opacity: 0;
-        }
-
-        #toast {
-            position: fixed;
-            bottom: 140px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 20;
-            background: rgba(30, 30, 40, 0.9);
-            border: 1px solid var(--input-border);
-            border-radius: 2px;
-            padding: 10px 20px;
-            font-size: 12px;
-            letter-spacing: 0.1em;
-            color: var(--ui-dim);
-            opacity: 0;
-            transition: opacity 0.4s;
-            pointer-events: none;
-        }
-
-        #toast.show {
-            opacity: 1;
-        }
-    </style>
+    #toast.show { opacity: 1; }
+  </style>
 </head>
-
 <body>
 
-    <canvas id="stars"></canvas>
-    <div id="sky"></div>
+<canvas id="stars"></canvas>
+<div id="sky"></div>
 
-    <header>
-        <div class="site-dot"></div>
-        <span class="site-title">One Good Deed</span>
-        <span class="live-count" id="live-count"></span>
-    </header>
+<header>
+  <div class="site-dot"></div>
+  <span class="site-title">One Good Deed</span>
+  <span class="live-count" id="live-count"></span>
+</header>
 
-    <div id="input-area">
-        <span class="input-hint">What good did you do today?</span>
-        <div class="input-row">
-            <input id="deed-input" type="text" maxlength="280" placeholder="I helped a stranger find their way…"
-                autocomplete="off" spellcheck="true">
-            <button id="submit-btn">Release</button>
-        </div>
-        <div class="input-meta">
-            <span id="status-msg" class="hidden"></span>
-            <span id="char-count">280</span>
-        </div>
-    </div>
+<div id="input-area">
+  <span class="input-hint">What good did you do today?</span>
+  <div class="input-row">
+    <input
+      id="deed-input"
+      type="text"
+      maxlength="280"
+      placeholder="I helped a stranger find their way…"
+      autocomplete="off"
+      spellcheck="true"
+    >
+    <button id="submit-btn">Release</button>
+  </div>
+  <div class="input-meta">
+    <span id="status-msg" class="hidden"></span>
+    <span id="char-count">280</span>
+  </div>
+</div>
 
-    <div id="toast">deed reported — thank you</div>
+<div id="toast">deed reported — thank you</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
-    <script>
-        // ── CONFIG ──────────────────────────────────────────────────────────
-        const SUPABASE_URL = 'https://hfqbvzmyepdggfriniyf.supabase.co'
-        const SUPABASE_ANON = 'sb_publishable_6Eu6VZtYdB3T6k4io0fBRA_3wVRLsiM'
-        const EDGE_FUNCTION = `${SUPABASE_URL}/functions/v1/moderate-deed`
+<script>
+  // ── CONFIG ──────────────────────────────────────────────────────────
+  const SUPABASE_URL  = 'https://hfqbvzmyepdggfriniyf.supabase.co'
+  const SUPABASE_ANON = 'sb_publishable_6Eu6VZtYdB3T6k4io0fBRA_3wVRLsiM'
+  const EDGE_FUNCTION = `${SUPABASE_URL}/functions/v1/moderate-deed`
 
-        const MIN_VISIBLE = 6     // below this, recycle deeds
-        const MAX_VISIBLE = 30    // hard cap on screen
-        const BASE_DURATION = 28000 // ms — base float time
-        const LONG_DURATION = 55000 // ms — extended life when sky is sparse
+  const MIN_VISIBLE   = 6     // below this, recycle deeds
+  const MAX_VISIBLE   = 30    // hard cap on screen
+  const BASE_DURATION = 28000 // ms — base float time
+  const LONG_DURATION = 55000 // ms — extended life when sky is sparse
 
-        const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
 
-        // ── STAR FIELD ──────────────────────────────────────────────────────
-        const canvas = document.getElementById('stars')
-        const ctx = canvas.getContext('2d')
-        let stars = []
+  // ── STAR FIELD ──────────────────────────────────────────────────────
+  const canvas = document.getElementById('stars')
+  const ctx    = canvas.getContext('2d')
+  let stars    = []
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth
-            canvas.height = window.innerHeight
-            buildStars()
-        }
+  function resizeCanvas() {
+    canvas.width  = window.innerWidth
+    canvas.height = window.innerHeight
+    buildStars()
+  }
 
-        function buildStars() {
-            stars = []
-            const count = Math.floor((canvas.width * canvas.height) / 3500)
-            for (let i = 0; i < count; i++) {
-                stars.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    r: Math.random() * 1.4 + 0.2,
-                    baseA: Math.random() * 0.5 + 0.2,
-                    // 45% of stars twinkle — more visible than before
-                    twinkle: Math.random() > 0.55,
-                    phase: Math.random() * Math.PI * 2,
-                    // faster speed range → more noticeable shimmer
-                    speed: Math.random() * 0.5 + 0.15,
-                    // amplitude: how much brightness swings
-                    amp: Math.random() * 0.5 + 0.3
-                })
-            }
-        }
+  function buildStars() {
+    stars = []
+    const count = Math.floor((canvas.width * canvas.height) / 3500)
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.4 + 0.2,
+        baseA: Math.random() * 0.5 + 0.2,
+        // 45% of stars twinkle — more visible than before
+        twinkle: Math.random() > 0.55,
+        phase: Math.random() * Math.PI * 2,
+        // faster speed range → more noticeable shimmer
+        speed: Math.random() * 0.5 + 0.15,
+        // amplitude: how much brightness swings
+        amp: Math.random() * 0.5 + 0.3
+      })
+    }
+  }
 
-        let frame = 0
-        function drawStars() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
-            frame += 0.008
-            for (const s of stars) {
-                let a = s.baseA
-                if (s.twinkle) {
-                    a = s.baseA * (1 - s.amp + s.amp * Math.abs(Math.sin(frame * s.speed + s.phase)))
-                }
-                ctx.beginPath()
-                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2)
-                ctx.fillStyle = `rgba(255,248,235,${a})`
-                ctx.fill()
-            }
-            requestAnimationFrame(drawStars)
-        }
+  let frame = 0
+  function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    frame += 0.008
+    for (const s of stars) {
+      let a = s.baseA
+      if (s.twinkle) {
+        a = s.baseA * (1 - s.amp + s.amp * Math.abs(Math.sin(frame * s.speed + s.phase)))
+      }
+      ctx.beginPath()
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(255,248,235,${a})`
+      ctx.fill()
+    }
+    requestAnimationFrame(drawStars)
+  }
 
-        window.addEventListener('resize', resizeCanvas)
-        resizeCanvas()
-        drawStars()
+  window.addEventListener('resize', resizeCanvas)
+  resizeCanvas()
+  drawStars()
 
-        // ── DEED POOL (for recycling) ────────────────────────────────────────
-        const sky = document.getElementById('sky')
-        let visible = 0
-        let liveCount = 0
-        const deedPool = []   // texts available for recycling
+  // ── DEED POOL (for recycling) ────────────────────────────────────────
+  const sky      = document.getElementById('sky')
+  let   visible  = 0
+  let   liveCount = 0
+  const deedPool = []   // texts available for recycling
 
-        function spawnDeed(text, delay = 0, allowRecycle = true) {
-            if (visible >= MAX_VISIBLE) return
+  function spawnDeed(text, delay = 0, allowRecycle = true) {
+    if (visible >= MAX_VISIBLE) return
 
-            // decide duration based on sky fullness
-            const sparse = visible < MIN_VISIBLE
-            const duration = sparse
-                ? LONG_DURATION + Math.random() * 20000
-                : BASE_DURATION + Math.random() * 12000
+    // decide duration based on sky fullness
+    const sparse   = visible < MIN_VISIBLE
+    const duration = sparse
+      ? LONG_DURATION + Math.random() * 20000
+      : BASE_DURATION + Math.random() * 12000
 
-            const el = document.createElement('div')
-            el.className = 'deed'
+    const el = document.createElement('div')
+    el.className = 'deed'
 
-            const x = 8 + Math.random() * 72
-            const y = 12 + Math.random() * 62
-            el.style.left = `${x}%`
-            el.style.top = `${y}%`
-            el.style.transform = 'translate(-50%, -50%)'
+    const x = 8 + Math.random() * 72
+    const y = 12 + Math.random() * 62
+    el.style.left      = `${x}%`
+    el.style.top       = `${y}%`
+    el.style.transform = 'translate(-50%, -50%)'
 
-            const len = text.length
-            const size = len < 60 ? (1.55 + Math.random() * 0.65)
-                : len < 120 ? (1.25 + Math.random() * 0.4)
-                    : (1.05 + Math.random() * 0.3)
-            el.style.fontSize = `${size}rem`
-            el.style.fontWeight = Math.random() > 0.5 ? '300' : '400'
-            el.style.animationDuration = `${duration}ms`
-            el.style.animationDelay = `${delay}ms`
+    const len  = text.length
+    const size = len < 60  ? (1.55 + Math.random() * 0.65)
+               : len < 120 ? (1.25 + Math.random() * 0.4)
+               :              (1.05 + Math.random() * 0.3)
+    el.style.fontSize        = `${size}rem`
+    el.style.fontWeight      = Math.random() > 0.5 ? '300' : '400'
+    el.style.animationDuration = `${duration}ms`
+    el.style.animationDelay    = `${delay}ms`
 
-            el.innerHTML = `${text}<button class="deed-report" onclick="reportDeed(this)">⚑ report</button>`
+    el.innerHTML = `${text}<button class="deed-report" onclick="reportDeed(this)">⚑ report</button>`
 
-            visible++
-            sky.appendChild(el)
+    visible++
+    sky.appendChild(el)
 
-            el.addEventListener('animationend', () => {
-                el.remove()
-                visible--
-                // recycle: if sky is sparse and we have pool texts, respawn after a short pause
-                if (allowRecycle && deedPool.length > 0 && visible < MIN_VISIBLE) {
-                    const next = deedPool[Math.floor(Math.random() * deedPool.length)]
-                    setTimeout(() => spawnDeed(next, 0, true), 1500 + Math.random() * 3000)
-                }
-            })
-        }
+    el.addEventListener('animationend', () => {
+      el.remove()
+      visible--
+      // recycle: if sky is sparse and we have pool texts, respawn after a short pause
+      if (allowRecycle && deedPool.length > 0 && visible < MIN_VISIBLE) {
+        const next = deedPool[Math.floor(Math.random() * deedPool.length)]
+        setTimeout(() => spawnDeed(next, 0, true), 1500 + Math.random() * 3000)
+      }
+    })
+  }
 
-        // ── REPORT ──────────────────────────────────────────────────────────
-        function reportDeed(btn) {
-            btn.textContent = 'reported'
-            btn.style.color = 'var(--accent)'
-            showToast()
-            // TODO: wire up report endpoint
-        }
+  // ── REPORT ──────────────────────────────────────────────────────────
+  function reportDeed(btn) {
+    btn.textContent = 'reported'
+    btn.style.color = 'var(--accent)'
+    showToast()
+    // TODO: wire up report endpoint
+  }
 
-        function showToast() {
-            const t = document.getElementById('toast')
-            t.classList.add('show')
-            setTimeout(() => t.classList.remove('show'), 3000)
-        }
+  function showToast() {
+    const t = document.getElementById('toast')
+    t.classList.add('show')
+    setTimeout(() => t.classList.remove('show'), 3000)
+  }
 
-        // ── LOAD RECENT DEEDS ───────────────────────────────────────────────
-        async function loadRecent() {
-            const { data } = await client
-                .from('deeds')
-                .select('id, content')
-                .eq('status', 'approved')
-                .gt('expires_at', new Date().toISOString())
-                .order('created_at', { ascending: false })
-                .limit(25)
+  // ── LOAD RECENT DEEDS ───────────────────────────────────────────────
+  async function loadRecent() {
+    const { data } = await client
+      .from('deeds')
+      .select('id, content')
+      .eq('status', 'approved')
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(25)
 
-            if (!data || data.length === 0) return
+    if (!data || data.length === 0) return
 
-            // fill pool for recycling
-            data.forEach(d => {
-                if (!deedPool.includes(d.content)) deedPool.push(d.content)
-            })
+    // fill pool for recycling
+    data.forEach(d => {
+      if (!deedPool.includes(d.content)) deedPool.push(d.content)
+    })
 
-            // spawn with staggered delay
-            data.forEach((deed, i) => spawnDeed(deed.content, i * 900, true))
-        }
+    // spawn with staggered delay
+    data.forEach((deed, i) => spawnDeed(deed.content, i * 900, true))
+  }
 
-        // ── REALTIME ─────────────────────────────────────────────────────────
-        function subscribeRealtime() {
-            client.channel('deeds-live')
+  // ── REALTIME ─────────────────────────────────────────────────────────
+  function subscribeRealtime() {
+    client.channel('deeds-live')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'deeds',
+        filter: 'status=eq.approved'
+      }, payload => {
+        const text = payload.new.content
+        if (!deedPool.includes(text)) deedPool.push(text)
+        spawnDeed(text, 0, true)
+        liveCount++
+        updateLiveCount()
+      })
+      .subscribe()
+  }
 
-                .on('postgres_changes', {
-                    event: 'INSERT',
-                    schema: 'public',
-                    table: 'deeds'
-                }, payload => {
-                    if (payload.new.status !== 'approved') return
-                    const text = payload.new.content
+  function updateLiveCount() {
+    const el = document.getElementById('live-count')
+    el.textContent = liveCount > 0
+      ? `✦ ${liveCount} deed${liveCount === 1 ? '' : 's'} shared`
+      : ''
+  }
 
-                    if (!deedPool.includes(text)) deedPool.push(text)
-                    spawnDeed(text, 0, true)
-                    liveCount++
-                    updateLiveCount()
-                })
-                .subscribe()
-        }
+  // ── INPUT ────────────────────────────────────────────────────────────
+  const input     = document.getElementById('deed-input')
+  const btn       = document.getElementById('submit-btn')
+  const charCount = document.getElementById('char-count')
+  const statusMsg = document.getElementById('status-msg')
 
-        function updateLiveCount() {
-            const el = document.getElementById('live-count')
-            el.textContent = liveCount > 0
-                ? `✦ ${liveCount} deed${liveCount === 1 ? '' : 's'} shared`
-                : ''
-        }
+  input.addEventListener('input', () => {
+    const rem = 280 - input.value.length
+    charCount.textContent = rem
+    charCount.classList.toggle('warn', rem < 40)
+  })
 
-        // ── INPUT ────────────────────────────────────────────────────────────
-        const input = document.getElementById('deed-input')
-        const btn = document.getElementById('submit-btn')
-        const charCount = document.getElementById('char-count')
-        const statusMsg = document.getElementById('status-msg')
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitDeed() }
+  })
 
-        input.addEventListener('input', () => {
-            const rem = 280 - input.value.length
-            charCount.textContent = rem
-            charCount.classList.toggle('warn', rem < 40)
-        })
+  btn.addEventListener('click', submitDeed)
 
-        input.addEventListener('keydown', e => {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitDeed() }
-        })
+  async function submitDeed() {
+    const text = input.value.trim()
+    if (!text || text.length < 5) return
 
-        btn.addEventListener('click', submitDeed)
+    btn.disabled   = true
+    input.disabled = true
+    setStatus('releasing your deed into the world…', false)
 
-        async function submitDeed() {
-            const text = input.value.trim()
-            if (!text || text.length < 5) return
+    try {
+      const res  = await fetch(EDGE_FUNCTION, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text })
+      })
+      const data = await res.json()
 
-            btn.disabled = true
-            input.disabled = true
-            setStatus('releasing your deed into the world…', false)
+      if (data.status === 'approved') {
+        setStatus('✦ your deed is flying', false)
+        input.value = ''
+        charCount.textContent = '280'
+        liveCount++
+        updateLiveCount()
+      } else if (data.status === 'pending_review') {
+        setStatus('your deed is being reviewed — thank you', false)
+        input.value = ''
+        charCount.textContent = '280'
+      } else {
+        setStatus("this doesn't seem like a good deed — try again", true)
+      }
+    } catch {
+      setStatus('something went wrong — please try again', true)
+    }
 
-            try {
+    setTimeout(() => {
+      btn.disabled   = false
+      input.disabled = false
+      clearStatus()
+      input.focus()
+    }, 3000)
+  }
 
-                const res = await fetch(EDGE_FUNCTION, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${SUPABASE_ANON}`
-                    },
-                    body: JSON.stringify({ content: text })
-                })
+  function setStatus(msg, isError) {
+    statusMsg.textContent = msg
+    statusMsg.classList.remove('hidden')
+    statusMsg.classList.add('visible')
+    statusMsg.style.color = isError ? 'rgba(200,100,80,0.7)' : 'var(--ui-dim)'
+  }
 
-                const data = await res.json()
+  function clearStatus() {
+    statusMsg.classList.remove('visible')
+    statusMsg.classList.add('hidden')
+  }
 
-                if (data.status === 'approved') {
-                    setStatus('✦ your deed is flying', false)
-                    input.value = ''
-                    charCount.textContent = '280'
-                    liveCount++
-                    updateLiveCount()
-                } else if (data.status === 'pending_review') {
-                    setStatus('your deed is being reviewed — thank you', false)
-                    input.value = ''
-                    charCount.textContent = '280'
-                } else {
-                    setStatus("this doesn't seem like a good deed — try again", true)
-                }
-            } catch {
-                setStatus('something went wrong — please try again', true)
-            }
-
-            setTimeout(() => {
-                btn.disabled = false
-                input.disabled = false
-                clearStatus()
-                input.focus()
-            }, 3000)
-        }
-
-        function setStatus(msg, isError) {
-            statusMsg.textContent = msg
-            statusMsg.classList.remove('hidden')
-            statusMsg.classList.add('visible')
-            statusMsg.style.color = isError ? 'rgba(200,100,80,0.7)' : 'var(--ui-dim)'
-        }
-
-        function clearStatus() {
-            statusMsg.classList.remove('visible')
-            statusMsg.classList.add('hidden')
-        }
-
-        // ── INIT ─────────────────────────────────────────────────────────────
-        loadRecent()
-        subscribeRealtime()
-    </script>
+  // ── INIT ─────────────────────────────────────────────────────────────
+  loadRecent()
+  subscribeRealtime()
+</script>
 </body>
-
 </html>
