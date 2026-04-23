@@ -83,10 +83,10 @@
     .deed-report:hover { color: var(--ui); }
 
     @keyframes deed-float {
-      0%   { opacity: 0; transform: translateY(55px); }
-      10%  { opacity: 1; transform: translateY(0); }
-      80%  { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-55px); }
+      0%   { opacity: 0; transform: translateY(45px); }
+      8%   { opacity: 1; transform: translateY(0); }
+      82%  { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-45px); }
     }
 
     header {
@@ -290,10 +290,10 @@
   const SUPABASE_ANON = 'sb_publishable_6Eu6VZtYdB3T6k4io0fBRA_3wVRLsiM'
   const EDGE_FUNCTION = `${SUPABASE_URL}/functions/v1/moderate-deed`
 
-  const MIN_VISIBLE   = 6     // below this, recycle deeds
+  const MIN_VISIBLE   = 4     // below this, recycle deeds
   const MAX_VISIBLE   = 30    // hard cap on screen
-  const BASE_DURATION = 28000 // ms — base float time
-  const LONG_DURATION = 55000 // ms — extended life when sky is sparse
+  const BASE_DURATION = 12000 // ms — base float time
+  const LONG_DURATION = 20000 // ms — extended life when sky is sparse
 
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
 
@@ -361,8 +361,8 @@
     // decide duration based on sky fullness
     const sparse   = visible < MIN_VISIBLE
     const duration = sparse
-      ? LONG_DURATION + Math.random() * 20000
-      : BASE_DURATION + Math.random() * 12000
+      ? LONG_DURATION + Math.random() * 8000
+      : BASE_DURATION + Math.random() * 6000
 
     const el = document.createElement('div')
     el.className = 'deed'
