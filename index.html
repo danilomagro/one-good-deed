@@ -349,6 +349,31 @@
   resizeCanvas()
   drawStars()
 
+  // ── GRID SYSTEM (collision-free placement) ──────────────────────────
+  const COLS = 4
+  const ROWS = 5
+  const grid = new Set() // occupied cell keys "col,row"
+
+  function getFreeCell() {
+    const all = []
+    for (let c = 0; c < COLS; c++)
+      for (let r = 0; r < ROWS; r++)
+        if (!grid.has(`${c},${r}`)) all.push([c, r])
+    if (all.length === 0) return null
+    return all[Math.floor(Math.random() * all.length)]
+  }
+
+  function cellToPercent(c, r) {
+    // margins: 8% left/right, 14% top, 20% bottom (input area)
+    const xMin = 8, xMax = 92
+    const yMin = 14, yMax = 78
+    const cellW = (xMax - xMin) / COLS
+    const cellH = (yMax - yMin) / ROWS
+    const x = xMin + c * cellW + cellW * (0.2 + Math.random() * 0.6)
+    const y = yMin + r * cellH + cellH * (0.2 + Math.random() * 0.6)
+    return { x, y }
+  }
+
   // ── DEED POOL (for recycling) ────────────────────────────────────────
   const sky      = document.getElementById('sky')
   let   visible  = 0
@@ -358,7 +383,12 @@
   function spawnDeed(text, delay = 0, allowRecycle = true) {
     if (visible >= MAX_VISIBLE) return
 
-    // decide duration based on sky fullness
+    const cell = getFreeCell()
+    if (!cell) return
+    const [c, r] = cell
+    const key = `${c},${r}`
+    grid.add(key)
+
     const sparse   = visible < MIN_VISIBLE
     const duration = sparse
       ? LONG_DURATION + Math.random() * 8000
@@ -367,16 +397,15 @@
     const el = document.createElement('div')
     el.className = 'deed'
 
-    const x = 8 + Math.random() * 72
-    const y = 12 + Math.random() * 62
+    const { x, y } = cellToPercent(c, r)
     el.style.left      = `${x}%`
     el.style.top       = `${y}%`
     el.style.transform = 'translate(-50%, -50%)'
 
     const len  = text.length
-    const size = len < 60  ? (1.55 + Math.random() * 0.65)
-               : len < 120 ? (1.25 + Math.random() * 0.4)
-               :              (1.05 + Math.random() * 0.3)
+    const size = len < 60  ? (1.3 + Math.random() * 0.4)
+               : len < 120 ? (1.05 + Math.random() * 0.3)
+               :              (0.9 + Math.random() * 0.2)
     el.style.fontSize        = `${size}rem`
     el.style.fontWeight      = Math.random() > 0.5 ? '300' : '400'
     el.style.animationDuration = `${duration}ms`
@@ -390,7 +419,7 @@
     el.addEventListener('animationend', () => {
       el.remove()
       visible--
-      // recycle: if sky is sparse and we have pool texts, respawn after a short pause
+      grid.delete(key)
       if (allowRecycle && deedPool.length > 0 && visible < MIN_VISIBLE) {
         const next = deedPool[Math.floor(Math.random() * deedPool.length)]
         setTimeout(() => spawnDeed(next, 0, true), 1500 + Math.random() * 3000)
