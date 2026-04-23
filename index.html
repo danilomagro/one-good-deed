@@ -485,11 +485,16 @@
     setStatus('releasing your deed into the world…', false)
 
     try {
-      const res  = await fetch(EDGE_FUNCTION, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: text })
-      })
+
+        const res = await fetch(EDGE_FUNCTION, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON}`
+            },
+            body: JSON.stringify({ content: text })
+        })
+
       const data = await res.json()
 
       if (data.status === 'approved') {
