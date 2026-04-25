@@ -69,7 +69,6 @@ This project operates under the EU Digital Services Act passive hosting regime.
 
 The admin dashboard (`/admin.html`) is password-protected with a server-side check and client-side brute-force lockout (3 attempts → 60s cooldown). The admin password never touches the frontend — it is verified inside a Supabase Edge Function.
 
-> **TODO (post-MVP):** Re-enable Row Level Security on the `deeds` table and remove broad grants. Currently disabled for simplicity during initial development.
 
 ## Repository structure
 
