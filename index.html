@@ -477,7 +477,7 @@
   async function loadRecent() {
     const { data } = await client
       .from('deeds')
-      .select('id, content')
+      .select('id, content, author')
       .eq('status', 'approved')
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
