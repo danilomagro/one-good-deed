@@ -51,8 +51,8 @@
       font-family: 'Cormorant Garamond', serif;
       font-style: italic;
       color: var(--msg);
-      line-height: 1.4;
-      max-width: min(480px, 80vw);
+      line-height: 1.5;
+      max-width: min(340px, 22vw);
       text-align: center;
       text-shadow:
         0 0 40px var(--accent-glow),
@@ -60,6 +60,18 @@
       animation: deed-float linear forwards;
       pointer-events: auto;
       cursor: default;
+    }
+    .deed-author {
+      display: block;
+      margin-top: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-style: normal;
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      opacity: 0.6;
+      text-transform: uppercase;
     }
 
     .deed:hover .deed-report { opacity: 1; }
@@ -351,7 +363,7 @@
 
   // ── GRID SYSTEM (collision-free placement) ──────────────────────────
   const COLS = 4
-  const ROWS = 5
+  const ROWS = 6
   const grid = new Set() // occupied cell keys "col,row"
 
   function getFreeCell() {
@@ -364,11 +376,12 @@
   }
 
   function cellToPercent(c, r) {
-    // margins: 8% left/right, 14% top, 20% bottom (input area)
-    const xMin = 8, xMax = 92
-    const yMin = 14, yMax = 78
+    // tighter margins to avoid edge overflow
+    const xMin = 12, xMax = 88
+    const yMin = 12, yMax = 75
     const cellW = (xMax - xMin) / COLS
     const cellH = (yMax - yMin) / ROWS
+    // random within inner 60% of cell to add breathing room
     const x = xMin + c * cellW + cellW * (0.2 + Math.random() * 0.6)
     const y = yMin + r * cellH + cellH * (0.2 + Math.random() * 0.6)
     return { x, y }
@@ -396,7 +409,8 @@
     return poolQueue.shift()
   }
 
-  function spawnDeed(text, delay = 0, allowRecycle = true) {
+  function spawnDeed(deed, delay = 0, allowRecycle = true) {
+    const text = typeof deed === 'string' ? deed : deed.content
     if (visible >= MAX_VISIBLE) return
 
     const cell = getFreeCell()
@@ -428,7 +442,8 @@
     el.style.animationDelay    = `${delay}ms`
     el.style.opacity           = '0'
 
-    el.innerHTML = `${text}<button class="deed-report" onclick="reportDeed(this)">⚑ report</button>`
+    const authorLine = deed.author ? `<span class="deed-author">${deed.author}</span>` : ''
+    el.innerHTML = `${text}${authorLine}<button class="deed-report" onclick="reportDeed(this)">⚑ report</button>`
 
     visible++
     sky.appendChild(el)
@@ -439,7 +454,7 @@
       grid.delete(key)
       if (allowRecycle && deedPool.length > 0 && visible < MIN_VISIBLE) {
         const next = nextFromPool()
-        if (next) setTimeout(() => spawnDeed(next, 0, true), 1500 + Math.random() * 3000)
+        if (next) setTimeout(() => spawnDeed(next, 0, true), 800 + Math.random() * 1500)
       }
     })
   }
@@ -472,11 +487,11 @@
 
     // fill pool for recycling
     data.forEach(d => {
-      if (!deedPool.includes(d.content)) deedPool.push(d.content)
+      if (!deedPool.find(p => p.content === d.content)) deedPool.push(d)
     })
 
     // spawn with staggered delay
-    data.forEach((deed, i) => spawnDeed(deed.content, i * 900, true))
+    data.forEach((deed, i) => spawnDeed(deed, i * 900, true))
   }
 
   // ── REALTIME ─────────────────────────────────────────────────────────
@@ -488,9 +503,9 @@
         table: 'deeds',
         filter: 'status=eq.approved'
       }, payload => {
-        const text = payload.new.content
-        if (!deedPool.includes(text)) deedPool.push(text)
-        spawnDeed(text, 0, true)
+        const deed = { content: payload.new.content, author: payload.new.author }
+        if (!deedPool.find(p => p.content === deed.content)) deedPool.push(deed)
+        spawnDeed(deed, 0, true)
         liveCount++
         updateLiveCount()
       })
