@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One Good Deed — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a12;
+      --surface: #13131f;
+      --border: rgba(255,255,255,0.08);
+      --text: rgba(255,255,255,0.85);
+      --text-dim: rgba(255,255,255,0.4);
+      --accent: #c9a97e;
+      --green: #4caf7d;
+      --red: #e05c5c;
+      --yellow: #e0b84a;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    /* ── LOGIN ── */
+    #login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-top: 20vh;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .logo {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .login-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    input[type="password"] {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="password"]:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 4px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.4; cursor: default; }
+
+    .btn-primary { background: var(--accent); color: #1a1000; }
+    .btn-approve { background: var(--green); color: #001a0d; }
+    .btn-reject  { background: var(--red);   color: #1a0000; }
+
+    #login-error {
+      font-size: 12px;
+      color: var(--red);
+      min-height: 16px;
+      text-align: center;
+    }
+
+    #lockout-msg {
+      font-size: 12px;
+      color: var(--yellow);
+      min-height: 16px;
+      text-align: center;
+    }
+
+    /* ── DASHBOARD ── */
+    #dashboard { display: none; width: 100%; max-width: 800px; }
+
+    .dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dash-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .dash-meta {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    #pending-count {
+      display: inline-block;
+      background: var(--yellow);
+      color: #1a1000;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-left: 8px;
+    }
+
+    #deed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .deed-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .deed-card.approved { border-left: 3px solid var(--green); }
+    .deed-card.rejected { border-left: 3px solid var(--red); opacity: 0.5; }
+
+    .deed-content {
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .deed-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--text-dim);
+      flex-wrap: wrap;
+    }
+
+    .deed-reason {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-style: italic;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 4px;
+    }
+
+    .deed-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .deed-actions .btn {
+      width: auto;
+      padding: 8px 16px;
+      font-size: 11px;
+    }
+
+    #empty-state {
+      text-align: center;
+      color: var(--text-dim);
+      padding: 60px 0;
+      font-size: 15px;
+    }
+
+    .refresh-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px 14px;
+      color: var(--text-dim);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="logo">One Good Deed</div>
+  <div class="login-title">Admin Access</div>
+  <input type="password" id="pwd-input" placeholder="Password" autocomplete="current-password">
+  <div id="lockout-msg"></div>
+  <div id="login-error"></div>
+  <button class="btn btn-primary" id="login-btn">Enter</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="dash-header">
+    <div>
+      <span class="dash-title">Moderation Queue</span>
+      <span id="pending-count">0</span>
+    </div>
+    <button class="refresh-btn" onclick="loadDeeds()">↻ Refresh</button>
+  </div>
+  <div id="deed-list"></div>
+</div>
+
+<script>
+  const SUPABASE_URL    = 'https://hfqbvzmyepdggfriniyf.supabase.co'
+  const SUPABASE_ANON   = 'sb_publishable_6Eu6VZtYdB3T6k4io0fBRA_3wVRLsiM'
+  const ADMIN_FUNCTION  = `${SUPABASE_URL}/functions/v1/admin-deed`
+
+  let sessionPassword = ''
+  let failedAttempts  = 0
+  let lockedUntil     = 0
+
+  // ── LOGIN ──
+  document.getElementById('pwd-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') login()
+  })
+  document.getElementById('login-btn').addEventListener('click', login)
+
+  async function login() {
+    const now = Date.now()
+    if (now < lockedUntil) {
+      const secs = Math.ceil((lockedUntil - now) / 1000)
+      document.getElementById('lockout-msg').textContent = `Too many attempts — wait ${secs}s`
+      return
+    }
+
+    const pwd = document.getElementById('pwd-input').value
+    if (!pwd) return
+
+    document.getElementById('login-btn').disabled = true
+    document.getElementById('login-error').textContent = ''
+
+    const ok = await callAdmin({ password: pwd, action: 'list' })
+
+    if (ok !== null) {
+      sessionPassword = pwd
+      failedAttempts  = 0
+      document.getElementById('login-screen').style.display = 'none'
+      document.getElementById('dashboard').style.display = 'block'
+      renderDeeds(ok.deeds)
+    } else {
+      failedAttempts++
+      if (failedAttempts >= 3) {
+        lockedUntil = Date.now() + 60000
+        document.getElementById('lockout-msg').textContent = 'Too many attempts — locked for 60s'
+        startLockoutTimer()
+      } else {
+        document.getElementById('login-error').textContent =
+          `Wrong password (${3 - failedAttempts} attempt${3 - failedAttempts === 1 ? '' : 's'} left)`
+      }
+    }
+
+    document.getElementById('login-btn').disabled = false
+  }
+
+  function startLockoutTimer() {
+    const interval = setInterval(() => {
+      const remaining = Math.ceil((lockedUntil - Date.now()) / 1000)
+      if (remaining <= 0) {
+        clearInterval(interval)
+        document.getElementById('lockout-msg').textContent = ''
+        document.getElementById('login-error').textContent = ''
+        failedAttempts = 0
+      } else {
+        document.getElementById('lockout-msg').textContent =
+          `Too many attempts — wait ${remaining}s`
+      }
+    }, 1000)
+  }
+
+  // ── API ──
+  async function callAdmin(body) {
+    try {
+      const res = await fetch(ADMIN_FUNCTION, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON}`
+        },
+        body: JSON.stringify(body)
+      })
+      if (!res.ok) return null
+      return await res.json()
+    } catch {
+      return null
+    }
+  }
+
+  // ── LOAD DEEDS ──
+  async function loadDeeds() {
+    const data = await callAdmin({ password: sessionPassword, action: 'list' })
+    if (data) renderDeeds(data.deeds)
+  }
+
+  function renderDeeds(deeds) {
+    const list = document.getElementById('deed-list')
+    const count = document.getElementById('pending-count')
+    count.textContent = deeds.length
+
+    if (deeds.length === 0) {
+      list.innerHTML = '<div id="empty-state">✦ All clear — no deeds pending review</div>'
+      return
+    }
+
+    list.innerHTML = deeds.map(d => `
+      <div class="deed-card" id="card-${d.id}">
+        <div class="deed-content">${escapeHtml(d.content)}</div>
+        <div class="deed-reason">AI: ${escapeHtml(d.moderation_reason || '—')}</div>
+        <div class="deed-meta">
+          <span>${new Date(d.created_at).toLocaleString('it-IT')}</span>
+          <span>expires ${new Date(d.expires_at).toLocaleString('it-IT')}</span>
+        </div>
+        <div class="deed-actions">
+          <button class="btn btn-approve" onclick="moderate('${d.id}', 'approve')">✓ Approve</button>
+          <button class="btn btn-reject"  onclick="moderate('${d.id}', 'reject')">✕ Reject</button>
+        </div>
+      </div>
+    `).join('')
+  }
+
+  async function moderate(id, action) {
+    const card = document.getElementById(`card-${id}`)
+    card.querySelectorAll('button').forEach(b => b.disabled = true)
+
+    const result = await callAdmin({ password: sessionPassword, action, id })
+    if (result?.success) {
+      card.classList.add(action === 'approve' ? 'approved' : 'rejected')
+      setTimeout(() => card.remove(), 800)
+      const count = document.getElementById('pending-count')
+      count.textContent = Math.max(0, parseInt(count.textContent) - 1)
+    } else {
+      card.querySelectorAll('button').forEach(b => b.disabled = false)
+    }
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  }
+</script>
+</body>
+</html>
+HTMLEOF
+echo "Done: $(wc -l < /mnt/user-data/outputs/admin.html) lines"
