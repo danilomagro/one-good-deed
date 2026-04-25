@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { content } = await req.json()
+    const { content, author } = await req.json()
 
     if (!content || content.trim().length === 0) {
       return new Response(
@@ -82,6 +82,7 @@ Message to classify: "${content.replace(/"/g, '\\"')}"`,
       .from('deeds')
       .insert({
         content: content.trim(),
+        author: author || null,
         status: moderation.status,
         moderation_reason: moderation.reason,
       })
