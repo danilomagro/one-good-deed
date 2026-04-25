@@ -162,8 +162,27 @@
       align-items: center;
       gap: 10px;
       width: 100%;
-      max-width: 560px;
+      max-width: 680px;
     }
+
+    #author-input {
+      width: 160px;
+      flex-shrink: 0;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 2px;
+      padding: 13px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--msg);
+      outline: none;
+      transition: border-color 0.3s;
+      caret-color: var(--accent);
+    }
+
+    #author-input::placeholder { color: var(--ui-dim); }
+    #author-input:focus { border-color: var(--input-border-focus); }
 
     #deed-input {
       flex: 1;
@@ -283,6 +302,13 @@
       placeholder="I helped a stranger find their way…"
       autocomplete="off"
       spellcheck="true"
+    >
+    <input
+      id="author-input"
+      type="text"
+      maxlength="40"
+      placeholder="Your name (optional)"
+      autocomplete="off"
     >
     <button id="submit-btn">Release</button>
   </div>
@@ -550,19 +576,21 @@
       const res  = await fetch(EDGE_FUNCTION, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: text })
+        body: JSON.stringify({ content: text, author: document.getElementById('author-input').value.trim() || null })
       })
       const data = await res.json()
 
       if (data.status === 'approved') {
         setStatus('✦ your deed is flying', false)
         input.value = ''
+        document.getElementById('author-input').value = ''
         charCount.textContent = '280'
         liveCount++
         updateLiveCount()
       } else if (data.status === 'pending_review') {
         setStatus('your deed is being reviewed — thank you', false)
         input.value = ''
+        document.getElementById('author-input').value = ''
         charCount.textContent = '280'
       } else {
         setStatus("this doesn't seem like a good deed — try again", true)
