@@ -379,6 +379,22 @@
   let   visible  = 0
   let   liveCount = 0
   const deedPool = []   // texts available for recycling
+  let   poolQueue = []  // shuffled queue — no repeats until all shown
+
+  function shuffleArray(arr) {
+    const a = [...arr]
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]]
+    }
+    return a
+  }
+
+  function nextFromPool() {
+    if (deedPool.length === 0) return null
+    if (poolQueue.length === 0) poolQueue = shuffleArray(deedPool)
+    return poolQueue.shift()
+  }
 
   function spawnDeed(text, delay = 0, allowRecycle = true) {
     if (visible >= MAX_VISIBLE) return
@@ -422,8 +438,8 @@
       visible--
       grid.delete(key)
       if (allowRecycle && deedPool.length > 0 && visible < MIN_VISIBLE) {
-        const next = deedPool[Math.floor(Math.random() * deedPool.length)]
-        setTimeout(() => spawnDeed(next, 0, true), 1500 + Math.random() * 3000)
+        const next = nextFromPool()
+        if (next) setTimeout(() => spawnDeed(next, 0, true), 1500 + Math.random() * 3000)
       }
     })
   }
