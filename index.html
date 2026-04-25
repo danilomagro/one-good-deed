@@ -454,7 +454,7 @@
       grid.delete(key)
       if (allowRecycle && deedPool.length > 0 && visible < MIN_VISIBLE) {
         const next = nextFromPool()
-        if (next) setTimeout(() => spawnDeed(next, 0, true), 800 + Math.random() * 1500)
+        if (next) setTimeout(() => spawnDeed(next, 0, true), 200 + Math.random() * 400)
       }
     })
   }
