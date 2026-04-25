@@ -442,7 +442,8 @@
     el.style.animationDelay    = `${delay}ms`
     el.style.opacity           = '0'
 
-    const authorLine = deed.author ? `<span class="deed-author">${deed.author}</span>` : ''
+    const author = typeof deed === 'string' ? null : deed.author
+    const authorLine = author ? `<span class="deed-author">${author}</span>` : ''
     el.innerHTML = `${text}${authorLine}<button class="deed-report" onclick="reportDeed(this)">⚑ report</button>`
 
     visible++
