@@ -303,7 +303,7 @@
   const EDGE_FUNCTION = `${SUPABASE_URL}/functions/v1/moderate-deed`
 
   const MIN_VISIBLE   = 4     // below this, recycle deeds
-  const MAX_VISIBLE   = 30    // hard cap on screen
+  const MAX_VISIBLE   = 16    // hard cap on screen — matches 4x6 grid minus buffer
   const BASE_DURATION = 12000 // ms — base float time
   const LONG_DURATION = 20000 // ms — extended life when sky is sparse
 
@@ -481,7 +481,7 @@
       .eq('status', 'approved')
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
-      .limit(25)
+      .limit(12)
 
     if (!data || data.length === 0) return
 
